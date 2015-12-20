@@ -6,7 +6,7 @@ import (
 	"github.com/jeffail/gabs"
 )
 
-func TestAddKeySimple(t *testing.T) {
+func TestAddObjectSimple(t *testing.T) {
 	input := []byte(`{}`)
 	correctResult := `{"foo":"bar"}`
 
@@ -15,7 +15,14 @@ func TestAddKeySimple(t *testing.T) {
 		t.Error(err)
 	}
 
-	result, err := addKey(j, "foo", "bar")
+	options := addObjectOptions{
+		json:      j,
+		path:      "foo",
+		delimiter: ".",
+		values:    []string{"bar"},
+	}
+
+	result, err := addObject(options)
 	if err != nil {
 		t.Error(err)
 	}
@@ -25,7 +32,34 @@ func TestAddKeySimple(t *testing.T) {
 	}
 }
 
-func TestAddKeyExisting(t *testing.T) {
+func TestAddObjectWithObject(t *testing.T) {
+	input := []byte(`{"foo":{}}`)
+	correctResult := `{"foo":{"bar":"baz"}}`
+
+	j, err := gabs.ParseJSON(input)
+	if err != nil {
+		t.Error(err)
+	}
+
+	options := addObjectOptions{
+		json:      j,
+		path:      "foo",
+		delimiter: ".",
+		keys:      []string{"bar"},
+		values:    []string{"baz"},
+	}
+
+	result, err := addObject(options)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if result.String() != correctResult {
+		t.Errorf("Wanted %s\nGot %s", correctResult, result)
+	}
+}
+
+func TestAddObjectExisting(t *testing.T) {
 	input := []byte(`{"foo":"bar"}`)
 	correctResult := `{"baz":"qux","foo":"bar"}`
 
@@ -34,7 +68,14 @@ func TestAddKeyExisting(t *testing.T) {
 		t.Error(err)
 	}
 
-	result, err := addKey(j, "baz", "qux")
+	options := addObjectOptions{
+		json:      j,
+		path:      "baz",
+		delimiter: ".",
+		values:    []string{"qux"},
+	}
+
+	result, err := addObject(options)
 	if err != nil {
 		t.Error(err)
 	}
@@ -44,7 +85,7 @@ func TestAddKeyExisting(t *testing.T) {
 	}
 }
 
-func TestAddKeyNested(t *testing.T) {
+func TestAddObjectNested(t *testing.T) {
 	input := []byte(`{"foo":{"bar":"qux"}}`)
 	correctResult := `{"foo":{"bar":"qux","omg":"wtf"}}`
 
@@ -53,7 +94,14 @@ func TestAddKeyNested(t *testing.T) {
 		t.Error(err)
 	}
 
-	result, err := addKey(j, "foo.omg", "wtf")
+	options := addObjectOptions{
+		json:      j,
+		path:      "foo.omg",
+		delimiter: ".",
+		values:    []string{"wtf"},
+	}
+
+	result, err := addObject(options)
 	if err != nil {
 		t.Error(err)
 	}
@@ -63,7 +111,7 @@ func TestAddKeyNested(t *testing.T) {
 	}
 }
 
-func TestAddKeyNumber(t *testing.T) {
+func TestAddObjectNumber(t *testing.T) {
 	input := []byte(`{"foo":"bar"}`)
 	correctResult := `{"foo":1}`
 
@@ -72,7 +120,40 @@ func TestAddKeyNumber(t *testing.T) {
 		t.Error(err)
 	}
 
-	result, err := addKey(j, "foo", "1")
+	options := addObjectOptions{
+		json:      j,
+		path:      "foo",
+		delimiter: ".",
+		values:    []string{"1"},
+	}
+
+	result, err := addObject(options)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if result.String() != correctResult {
+		t.Errorf("Wanted %s\nGot %s", correctResult, result)
+	}
+}
+
+func TestAddObjectsAndValues(t *testing.T) {
+	input := []byte(`{}`)
+	correctResult := `{"baz":"qux","foo":"bar"}`
+
+	j, err := gabs.ParseJSON(input)
+	if err != nil {
+		t.Error(err)
+	}
+
+	options := addObjectOptions{
+		json:      j,
+		delimiter: ".",
+		keys:      []string{"foo", "baz"},
+		values:    []string{"bar", "qux"},
+	}
+
+	result, err := addObject(options)
 	if err != nil {
 		t.Error(err)
 	}
@@ -91,7 +172,14 @@ func TestAddArraySimple(t *testing.T) {
 		t.Error(err)
 	}
 
-	result, err := addArray(j, "foo", []string{"a", "b", "c"})
+	options := addArrayOptions{
+		json:      j,
+		path:      "foo",
+		delimiter: ".",
+		values:    []string{"a", "b", "c"},
+	}
+
+	result, err := addArray(options)
 	if err != nil {
 		t.Error(err)
 	}
@@ -110,7 +198,14 @@ func TestAddArrayExisting(t *testing.T) {
 		t.Error(err)
 	}
 
-	result, err := addArray(j, "baz", []string{"a", "b", "c"})
+	options := addArrayOptions{
+		json:      j,
+		path:      "baz",
+		delimiter: ".",
+		values:    []string{"a", "b", "c"},
+	}
+
+	result, err := addArray(options)
 	if err != nil {
 		t.Error(err)
 	}
@@ -129,7 +224,14 @@ func TestAddArrayNested(t *testing.T) {
 		t.Error(err)
 	}
 
-	result, err := addArray(j, "foo.omg", []string{"a", "b", "c"})
+	options := addArrayOptions{
+		json:      j,
+		path:      "foo.omg",
+		delimiter: ".",
+		values:    []string{"a", "b", "c"},
+	}
+
+	result, err := addArray(options)
 	if err != nil {
 		t.Error(err)
 	}
@@ -148,7 +250,14 @@ func TestAddArrayNumber(t *testing.T) {
 		t.Error(err)
 	}
 
-	result, err := addArray(j, "foo", []string{"1", "2", "3"})
+	options := addArrayOptions{
+		json:      j,
+		path:      "foo",
+		delimiter: ".",
+		values:    []string{"1", "2", "3"},
+	}
+
+	result, err := addArray(options)
 	if err != nil {
 		t.Error(err)
 	}
@@ -167,7 +276,15 @@ func TestAddArrayElementSimple(t *testing.T) {
 		t.Error(err)
 	}
 
-	result, err := addArrayElement(j, "foo", "4", false)
+	options := addArrayElementOptions{
+		json:      j,
+		path:      "foo",
+		delimiter: ".",
+		value:     "4",
+		exists:    false,
+	}
+
+	result, err := addArrayElement(options)
 	if err != nil {
 		t.Error(err)
 	}
@@ -186,7 +303,15 @@ func TestAddArrayElementPosition(t *testing.T) {
 		t.Error(err)
 	}
 
-	result, err := addArrayElement(j, "foo.1", "4", false)
+	options := addArrayElementOptions{
+		json:      j,
+		path:      "foo.1",
+		delimiter: ".",
+		value:     "4",
+		exists:    false,
+	}
+
+	result, err := addArrayElement(options)
 	if err != nil {
 		t.Error(err)
 	}
@@ -196,7 +321,15 @@ func TestAddArrayElementPosition(t *testing.T) {
 	}
 
 	correctResult = `{"foo":[1,"a",3]}`
-	result, err = addArrayElement(j, "foo.1", "a", false)
+	options = addArrayElementOptions{
+		json:      j,
+		path:      "foo.1",
+		delimiter: ".",
+		value:     "a",
+		exists:    false,
+	}
+
+	result, err = addArrayElement(options)
 	if err != nil {
 		t.Error(err)
 	}
@@ -215,7 +348,15 @@ func TestAddArrayElementContains(t *testing.T) {
 		t.Error(err)
 	}
 
-	result, err := addArrayElement(j, "foo", "3", true)
+	options := addArrayElementOptions{
+		json:      j,
+		path:      "foo",
+		delimiter: ".",
+		value:     "3",
+		exists:    true,
+	}
+
+	result, err := addArrayElement(options)
 	if err != nil {
 		t.Error(err)
 	}

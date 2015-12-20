@@ -2,95 +2,93 @@ package main
 
 import (
 	"testing"
-
-	"github.com/jeffail/gabs"
 )
 
-func TestGetKeySimple(t *testing.T) {
-	input := []byte(`{"foo":"bar"}`)
-	correctResult := `"bar"`
-
-	j, err := gabs.ParseJSON(input)
+func runGetTest(t *testing.T, options getOptions, correctResult string) {
+	result, err := get(options)
 	if err != nil {
-		t.Error(err)
-	}
-
-	result, err := get(j, "foo")
-	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	if result.String() != correctResult {
-		t.Errorf("Wanted %s\nGot %s", correctResult, result)
+		t.Fatalf("Wanted %s\nGot %s", correctResult, result)
 	}
 }
 
-func TestGetKeyNested(t *testing.T) {
-	input := []byte(`{"foo":{"bar":"baz"}}`)
-	correctResult := `"baz"`
-
-	j, err := gabs.ParseJSON(input)
-	if err != nil {
-		t.Error(err)
+func TestGetKeySimple(t *testing.T) {
+	options := getOptions{
+		json:      readTestFile(t, "test.json"),
+		path:      "service.name",
+		delimiter: ".",
 	}
 
-	result, err := get(j, "foo.bar")
-	if err != nil {
-		t.Error(err)
-	}
-
-	if result.String() != correctResult {
-		t.Errorf("Wanted %s\nGot %s", correctResult, result)
-	}
+	runGetTest(t, options, `"redis_mysql"`)
 }
 
 func TestGetKeyNestedArray(t *testing.T) {
-	input := []byte(`{"foo":{"bar":[8,7,6,{"omg":"wtf"}]}}`)
-	correctResult := `7`
-
-	j, err := gabs.ParseJSON(input)
-	if err != nil {
-		t.Error(err)
+	options := getOptions{
+		json:      readTestFile(t, "test.json"),
+		path:      "service.tags.0",
+		delimiter: ".",
 	}
 
-	result, err := get(j, "foo.bar.1")
-	if err != nil {
-		t.Error(err)
+	runGetTest(t, options, `"master"`)
+
+	options = getOptions{
+		json:      readTestFile(t, "test.json"),
+		path:      "service.checks.0.script",
+		delimiter: ".",
 	}
 
-	if result.String() != correctResult {
-		t.Errorf("Wanted %s\nGot %s", correctResult, result)
-	}
-
-	correctResult = `"wtf"`
-
-	result, err = get(j, "foo.bar.3.omg")
-	if err != nil {
-		t.Error(err)
-	}
-
-	if result.String() != correctResult {
-		t.Errorf("Wanted %s\nGot %s", correctResult, result)
-	}
+	runGetTest(t, options, `"/usr/local/bin/check_redis.py"`)
 }
 
-func TestGetArrayContains(t *testing.T) {
-	input := []byte(`{"foo":{"bar":[8,7,6,{"omg":"wtf"}]}}`)
-	correctResult := `7`
-
-	j, err := gabs.ParseJSON(input)
-	if err != nil {
-		t.Error(err)
+func TestGetKeyValueString(t *testing.T) {
+	options := getOptions{
+		json:      readTestFile(t, "test.json"),
+		path:      "service.name=redis_mysql",
+		delimiter: ".",
 	}
 
-	result, err := get(j, "foo.bar")
-	if err != nil {
-		t.Error(err)
+	runGetTest(t, options, `"redis_mysql"`)
+}
+
+func TestGetKeyValueNumber(t *testing.T) {
+	options := getOptions{
+		json:      readTestFile(t, "test.json"),
+		path:      "service.port=8000",
+		delimiter: ".",
 	}
 
-	result, err = contains(result, "7")
+	runGetTest(t, options, "8000")
+}
 
-	if result.String() != correctResult {
-		t.Errorf("Wanted %s\nGot %s", correctResult, result)
+func TestGetHash(t *testing.T) {
+	options := getOptions{
+		json:      readTestFile(t, "test.json"),
+		path:      "service.foo={}",
+		delimiter: ".",
 	}
+
+	runGetTest(t, options, `{"bar":"baz"}`)
+}
+
+func TestGetGlobArray(t *testing.T) {
+	options := getOptions{
+		json:      readTestFile(t, "test.json"),
+		path:      "service.checks.*.interval",
+		delimiter: ".",
+	}
+
+	runGetTest(t, options, `"10s"`)
+}
+
+func TestGetGlobArrayValue(t *testing.T) {
+	options := getOptions{
+		json:      readTestFile(t, "test.json"),
+		path:      "service..checks..*..script=/usr/local/bin/check_mysql.py",
+		delimiter: "..",
+	}
+
+	runGetTest(t, options, `"/usr/local/bin/check_mysql.py"`)
 }

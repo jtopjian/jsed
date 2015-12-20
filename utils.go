@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"testing"
 
 	"github.com/jeffail/gabs"
 )
@@ -42,7 +43,24 @@ func readInput(f string) (*gabs.Container, error) {
 	return jsonParsed, nil
 }
 
+func getDelimiter(d string) string {
+	if d != "" {
+		return d
+	} else {
+		return "."
+	}
+}
+
 func errAndExit(e error) {
 	fmt.Printf("Error: %s\n", e)
 	os.Exit(1)
+}
+
+func readTestFile(t *testing.T, file string) *gabs.Container {
+	j, err := readInput("test.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return j
 }

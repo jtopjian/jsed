@@ -1,0 +1,20 @@
+{
+  "service": {
+    "name": "redis_mysql",
+    "tags": ["master","redis","mysql"],
+    "address": "127.0.0.1",
+    "port": 8000,
+    "enableTagOverride": false,
+    "foo": {"bar": "baz"},
+    "checks": [
+      {
+        "script": "/usr/local/bin/check_redis.py",
+        "interval": "10s"
+      },
+      {
+        "script": "/usr/local/bin/check_mysql.py",
+        "interval": "10s"
+      }
+    ]
+  }
+}

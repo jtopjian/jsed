@@ -2,12 +2,19 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/codegangsta/cli"
 	"github.com/jeffail/gabs"
 )
 
 var cmdDel cli.Command
+
+type delKeyOptions struct {
+	json      *gabs.Container
+	path      string
+	delimiter string
+}
 
 func init() {
 	cmdDel = cli.Command{
@@ -19,14 +26,10 @@ func init() {
 				Usage:  "Delete a new key/value pair.",
 				Action: actionDelKey,
 				Flags: []cli.Flag{
-					cli.StringFlag{
-						Name:  "file,f",
-						Usage: "the file to edit. stdin if not specified.",
-					},
-					cli.StringFlag{
-						Name:  "path,p",
-						Usage: "the path to delete the data.",
-					},
+					&flagFile,
+					&flagPath,
+					&flagDelimiter,
+					&flagPretty,
 				},
 			},
 		},
@@ -39,7 +42,13 @@ func actionDelKey(c *cli.Context) {
 		errAndExit(err)
 	}
 
-	j, err = delKey(j, c.String("path"))
+	options := delKeyOptions{
+		json:      j,
+		path:      c.String("path"),
+		delimiter: getDelimiter(c.String("delimiter")),
+	}
+
+	j, err = delKey(options)
 	if err != nil {
 		errAndExit(err)
 	}
@@ -51,7 +60,9 @@ func actionDelKey(c *cli.Context) {
 	}
 }
 
-func delKey(j *gabs.Container, path string) (*gabs.Container, error) {
-	err := j.DeleteP(path)
+func delKey(options delKeyOptions) (*gabs.Container, error) {
+	j := options.json
+	path := strings.Split(options.path, options.delimiter)
+	err := j.Delete(path...)
 	return j, err
 }

@@ -15,7 +15,13 @@ func TestDelKeySimple(t *testing.T) {
 		t.Error(err)
 	}
 
-	result, err := delKey(j, "foo")
+	options := delKeyOptions{
+		json:      j,
+		path:      "foo",
+		delimiter: ".",
+	}
+
+	result, err := delKey(options)
 	if err != nil {
 		t.Error(err)
 	}
@@ -34,7 +40,13 @@ func TestDelKeyNested(t *testing.T) {
 		t.Error(err)
 	}
 
-	result, err := delKey(j, "foo.bar")
+	options := delKeyOptions{
+		json:      j,
+		path:      "foo.bar",
+		delimiter: ".",
+	}
+
+	result, err := delKey(options)
 	if err != nil {
 		t.Error(err)
 	}
