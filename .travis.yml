@@ -9,12 +9,16 @@ env:
 install:
   - go get -d -v ./...
 script:
-  - go build -v ./...
+  - go build -o jsed -v ./...
+  - tar czvf jsed_${TRAVIS_TAG}_${GIMME_OS}_${GIMME_ARCH}.tar.gz jsed
 deploy:
   provider: releases
-  tags: true
+  skip_cleanup: true
   api_key:
     secure: QNC01C7mXXm2x0RwixLqlCO9/ZbAWR5c5XpdhmywQuTTfi+VxvS1HFI4uUKAz3uHk2Wv5/dRofM7LWUz81AO1k9EqJCp2EukRtAY+NNM1JygTSmvJPCrEP9fy9XApJ2fRGgGyy3GGYcjn31dPFaddNeT/VwfcVKc7C36D9hrUDF8ZG74FskPmdyFdAplQS9Uq5C4u0DtxMsTf3kqz2sdVhIeL2YMwOEiKd+n0TNJynpqlicIdPqiXbJo+NccBLJojT4fgCkBpHIb2eYa9eih8MmcH9DbDwHAVYqvLrUEHTpiw/f1iyzoI8MANetzpFtZA7DR1+k9Z3JTIOcREd6rdqZ2SgjvhXRdRX2aD9dDv77MlF+a2Dzo33PAR8q2EtDZDDu9zspvUkctxgLnFlaOVRjC4oEBN9muuxXX3rpqKFVYeQaulqklhZs+IhRhtfO/9yHLtX8DrDxkvyfTYWkmgjvRwuCFMhr0++QNCgqgCakclQPqEanfIQHDbtslEdfPPuHwDHV9wkEedCIRtnRYdsSRZXZlZRrS7xTfFBMe3MLg3B6HpFBRogEKsbIYBNgjIYobTPR1FN1eY8omjfUB2wDBkTIYr+SW1bElKTGuknXPaM3hxobvc630vFLZ+Uu/rNGcyYNleR42kfK7DRcO0NIBUeneY+YiC524mzTOm/4=
-  file: jsed
+  file: jsed_*
+  file_glob: true
   on:
     repo: jtopjian/jsed
+    all_branches: true
+    tags: true
