@@ -59,7 +59,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "jsed"
 	app.Usage = "a simple json utility"
-	app.Version = "0.2.0"
+	app.Version = "0.2.2"
 
 	app.Flags = []cli.Flag{
 		&flagDebug,

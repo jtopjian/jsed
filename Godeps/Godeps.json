@@ -1,0 +1,19 @@
+{
+	"ImportPath": "github.com/jtopjian/jsed",
+	"GoVersion": "go1.6",
+	"GodepVersion": "v74",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/codegangsta/cli",
+			"Comment": "1.2.0-183-gb5232bb",
+			"Rev": "b5232bb2934f606f9f27a1305f1eea224e8e8b88"
+		},
+		{
+			"ImportPath": "github.com/jeffail/gabs",
+			"Rev": "b69c9e648a2529c8d7b927ba7f87bc7fe0b3b0ea"
+		}
+	]
+}
