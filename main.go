@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli/v2"
 )
 
 var pretty bool
@@ -59,17 +59,17 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "jsed"
 	app.Usage = "a simple json utility"
-	app.Version = "0.2.2"
+	app.Version = "0.3.0"
 
 	app.Flags = []cli.Flag{
 		&flagDebug,
 	}
 
-	app.Commands = []cli.Command{
-		cmdGet,
-		cmdContains,
-		cmdAdd,
-		cmdDel,
+	app.Commands = []*cli.Command{
+		&cmdGet,
+		&cmdContains,
+		&cmdAdd,
+		&cmdDel,
 	}
 
 	app.Run(os.Args)

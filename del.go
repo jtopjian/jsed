@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/codegangsta/cli"
-	"github.com/jeffail/gabs"
+	"github.com/Jeffail/gabs/v2"
+	"github.com/urfave/cli/v2"
 )
 
 var cmdDel cli.Command
@@ -20,7 +20,7 @@ func init() {
 	cmdDel = cli.Command{
 		Name:  "del",
 		Usage: "delete data from a json file",
-		Subcommands: []cli.Command{
+		Subcommands: []*cli.Command{
 			{
 				Name:   "key",
 				Usage:  "Delete a new key/value pair.",
@@ -36,10 +36,10 @@ func init() {
 	}
 }
 
-func actionDelKey(c *cli.Context) {
+func actionDelKey(c *cli.Context) error {
 	j, err := readInput(c.String("file"))
 	if err != nil {
-		errAndExit(err)
+		return err
 	}
 
 	options := delKeyOptions{
@@ -50,7 +50,7 @@ func actionDelKey(c *cli.Context) {
 
 	j, err = delKey(options)
 	if err != nil {
-		errAndExit(err)
+		return err
 	}
 
 	if pretty {
@@ -58,6 +58,7 @@ func actionDelKey(c *cli.Context) {
 	} else {
 		fmt.Printf(j.String())
 	}
+	return nil
 }
 
 func delKey(options delKeyOptions) (*gabs.Container, error) {
