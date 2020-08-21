@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/codegangsta/cli"
-	"github.com/jeffail/gabs"
+	"github.com/Jeffail/gabs/v2"
+	"github.com/urfave/cli/v2"
 )
 
 var cmdGet cli.Command
@@ -32,10 +32,10 @@ func init() {
 	}
 }
 
-func actionGet(c *cli.Context) {
+func actionGet(c *cli.Context) error {
 	j, err := readInput(c.String("file"))
 	if err != nil {
-		errAndExit(err)
+		return err
 	}
 
 	options := getOptions{
@@ -46,7 +46,7 @@ func actionGet(c *cli.Context) {
 
 	j, err = get(options)
 	if err != nil {
-		errAndExit(err)
+		return err
 	}
 
 	switch j.Data().(type) {
@@ -59,6 +59,7 @@ func actionGet(c *cli.Context) {
 			fmt.Println(j.String())
 		}
 	}
+	return nil
 }
 
 // get retrieves a path from a JSON structure.
@@ -96,10 +97,7 @@ func get(options getOptions) (*gabs.Container, error) {
 			debug.Printf("%+v is an array", j)
 			if p == "*" {
 				debug.Printf("glob used")
-				children, err := j.Children()
-				if err != nil {
-					return nil, err
-				}
+				children := j.Children()
 
 				for _, c := range children {
 					debug.Printf("Child: %+v", c)

@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/jeffail/gabs"
+	"github.com/Jeffail/gabs/v2"
 )
 
 func readInput(f string) (*gabs.Container, error) {

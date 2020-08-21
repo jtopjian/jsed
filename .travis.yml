@@ -1,16 +1,15 @@
 sudo: false
+os:
+  - windows
+  - linux
+  - osx
 language: go
 go:
-  - 1.6
-env:
-    - GIMME_OS=linux GIMME_ARCH=amd64 GO15VENDOREXPERIMENT=1
-    - GIMME_OS=darwin GIMME_ARCH=amd64 GO15VENDOREXPERIMENT=1
-    - GIMME_OS=windows GIMME_ARCH=amd64 GO15VENDOREXPERIMENT=1
-before_install:
- - go get github.com/tools/godep
-install:
- - godep restore
+  - "1.13"
+  - "1.14"
+  - "1.15"
 script:
+  - go test
   - go build -o jsed -v *.go
   - tar czvf jsed_${TRAVIS_TAG}_${GIMME_OS}_${GIMME_ARCH}.tar.gz jsed
 deploy:

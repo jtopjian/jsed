@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"github.com/jeffail/gabs"
+	"github.com/Jeffail/gabs/v2"
 )
 
 func TestDelKeySimple(t *testing.T) {

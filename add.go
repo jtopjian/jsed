@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/codegangsta/cli"
-	"github.com/jeffail/gabs"
+	"github.com/Jeffail/gabs/v2"
+	"github.com/urfave/cli/v2"
 )
 
 var cmdAdd cli.Command
@@ -39,7 +39,7 @@ func init() {
 	cmdAdd = cli.Command{
 		Name:  "add",
 		Usage: "add data to a json file",
-		Subcommands: []cli.Command{
+		Subcommands: []*cli.Command{
 			{
 				Name:   "object",
 				Usage:  "Add a new key/value pair.",
@@ -83,10 +83,10 @@ func init() {
 	}
 }
 
-func actionAddObject(c *cli.Context) {
+func actionAddObject(c *cli.Context) error {
 	j, err := readInput(c.String("file"))
 	if err != nil {
-		errAndExit(err)
+		return err
 	}
 
 	options := addObjectOptions{
@@ -99,7 +99,7 @@ func actionAddObject(c *cli.Context) {
 
 	j, err = addObject(options)
 	if err != nil {
-		errAndExit(err)
+		return err
 	}
 
 	if pretty {
@@ -107,13 +107,13 @@ func actionAddObject(c *cli.Context) {
 	} else {
 		fmt.Printf(j.String())
 	}
-
+	return nil
 }
 
-func actionAddArray(c *cli.Context) {
+func actionAddArray(c *cli.Context) error {
 	j, err := readInput(c.String("file"))
 	if err != nil {
-		errAndExit(err)
+		return err
 	}
 
 	options := addArrayOptions{
@@ -125,7 +125,7 @@ func actionAddArray(c *cli.Context) {
 
 	j, err = addArray(options)
 	if err != nil {
-		errAndExit(err)
+		return err
 	}
 
 	if pretty {
@@ -133,12 +133,13 @@ func actionAddArray(c *cli.Context) {
 	} else {
 		fmt.Printf(j.String())
 	}
+	return nil
 }
 
-func actionAddArrayElement(c *cli.Context) {
+func actionAddArrayElement(c *cli.Context) error {
 	j, err := readInput(c.String("file"))
 	if err != nil {
-		errAndExit(err)
+		return err
 	}
 
 	options := addArrayElementOptions{
@@ -152,8 +153,9 @@ func actionAddArrayElement(c *cli.Context) {
 
 	j, err = addArrayElement(options)
 	if err != nil {
-		errAndExit(err)
+		return err
 	}
+	return nil
 }
 
 func addObject(options addObjectOptions) (*gabs.Container, error) {
